@@ -5,6 +5,7 @@ edition = "2021"
 exclude = ["target/*", ".gitignore", ".cargo/*", "Cargo.lock"]
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/wangxiaochuTHU/cplex_dynamic"
+description = "Binding of IBM Cplex dynamic/shared library, modified based on `rplex`."
 keywords = ["optimization", "binding", "cplex", "miqp"]
 categories = ["science::robotics"]
 
