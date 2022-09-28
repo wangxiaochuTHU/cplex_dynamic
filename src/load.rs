@@ -16,6 +16,8 @@ use std::ffi::CString;
 
 /// Used by CPLEX to represent a variable that has no upper bound.
 pub const INFINITY: f64 = 1.0E+20;
+pub const EPINT_ID: c_int = 2010; // identifier of integrality tolerance parameter 'EpInt'
+pub const EPINT: c_double = 1e-5; // default value for 'EpInt'
 
 pub enum CEnv {}
 
@@ -58,6 +60,7 @@ struct Api {
     CPXsetintparam: fn(env: *mut CEnv, param: c_int, value: c_int) -> c_int,
     CPXsetdblparam: fn(env: *mut CEnv, param: c_int, value: c_double) -> c_int,
     CPXgetintparam: fn(env: *mut CEnv, param: c_int, value: *mut c_int) -> c_int,
+    CPXgetdblparam: fn(env: *mut CEnv, param: c_int, value: *mut c_double) -> c_int,
     CPXchgprobtype: fn(env: *mut CEnv, lp: *mut CProblem, ptype: c_int) -> c_int,
     // adding variables and constraints
     CPXnewcols: fn(
@@ -1013,13 +1016,16 @@ impl<'a> Problem<'a> {
             ));
         }
 
+        let mut eps = EPINT;
+        CPLEX_API.CPXgetdblparam(self.env.inner, EPINT_ID, &mut eps);
+
         return Ok(Solution {
             objective: objval,
             variables: xs
                 .iter()
                 .zip(self.variables.iter())
                 .map(|(&x, v)| match v.ty {
-                    VariableType::Binary => VariableValue::Binary(x == 1.0),
+                    VariableType::Binary => VariableValue::Binary(x <= 1.0 + eps && x >= 1.0 - eps),
                     VariableType::Continuous => VariableValue::Continuous(x),
                     VariableType::Integer => VariableValue::Integer(x as CInt),
                     VariableType::SemiContinuous => VariableValue::SemiContinuous(x),
