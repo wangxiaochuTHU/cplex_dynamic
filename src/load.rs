@@ -32,6 +32,8 @@ lazy_static! {
         let pattern = "./**/cplex*.so";
         #[cfg(target_os = "windows")]
         let pattern = "./**/cplex*.dll";
+        #[cfg(target_os = "macos")]
+        let pattern = "./**/cplex*.dylib";
 
         for entry in glob::glob(pattern).unwrap() {
             match entry {
