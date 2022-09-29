@@ -87,6 +87,19 @@ struct Api {
         col_name: *const *const c_char,
         row_name: *const *const c_char,
     ) -> c_int,
+    CPXaddcols: fn(
+        env: *mut CEnv,
+        lp: *mut CProblem,
+        col_count: CInt,
+        nz_count: CInt,
+        obj: *const c_double,
+        cmatbeg: *const CInt,
+        cmatind: *const CInt,
+        cmatval: *const c_double,
+        lb: *const c_double,
+        ub: *const c_double,
+        col_name: *const *const c_char,
+    ) -> c_int,
     CPXaddlazyconstraints: fn(
         env: *mut CEnv,
         lp: *mut CProblem,
@@ -112,6 +125,15 @@ struct Api {
     // changes the coefficient in the quadratic objective
     CPXchgqpcoef:
         fn(env: *mut CEnv, lp: *mut CProblem, i: CInt, j: CInt, newvalue: c_double) -> c_int,
+
+    // accesses the quadratic coefficient
+    CPXgetqpcoef: fn(
+        env: *mut CEnv,
+        lp: *mut CProblem,
+        row_num: CInt,
+        col_num: CInt,
+        coef_p: *mut c_double,
+    ) -> c_int,
 
     CPXchgobjsen: fn(env: *mut CEnv, lp: *mut CProblem, maxormin: c_int) -> c_int,
     // solving
@@ -151,6 +173,8 @@ struct Api {
     // freeing
     CPXcloseCPLEX: fn(env: *const *mut CEnv) -> c_int,
     CPXfreeprob: fn(env: *mut CEnv, lp: *const *mut CProblem) -> c_int,
+    // continuous quadratic optimization
+    CPXqpopt: fn(env: *mut CEnv, lp: *const *mut CProblem) -> c_int,
 }
 
 fn errstr(env: *mut CEnv, errcode: c_int) -> Result<String, String> {
