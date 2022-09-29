@@ -176,7 +176,7 @@ struct Api {
     CPXcloseCPLEX: fn(env: *const *mut CEnv) -> c_int,
     CPXfreeprob: fn(env: *mut CEnv, lp: *const *mut CProblem) -> c_int,
     // continuous quadratic optimization
-    CPXqpopt: fn(env: *mut CEnv, lp: *const *mut CProblem) -> c_int,
+    CPXqpopt: fn(env: *mut CEnv, lp: *mut CProblem) -> c_int,
 }
 
 fn errstr(env: *mut CEnv, errcode: c_int) -> Result<String, String> {
@@ -645,6 +645,7 @@ pub enum ConstraintType {
 pub enum ProblemType {
     Linear,
     MixedInteger,
+    ContinuousQuadratic,
 }
 
 impl VariableType {
@@ -995,6 +996,7 @@ impl<'a> Problem<'a> {
         let status = match pt {
             ProblemType::MixedInteger => CPLEX_API.CPXmipopt(self.env.inner, self.inner),
             ProblemType::Linear => CPLEX_API.CPXlpopt(self.env.inner, self.inner),
+            ProblemType::ContinuousQuadratic => CPLEX_API.CPXqpopt(self.env.inner, self.inner),
         };
         if status != 0 {
             CPLEX_API.CPXwriteprob(
@@ -1062,8 +1064,8 @@ impl<'a> Problem<'a> {
     }
 
     /// Solve the problem as a Mixed Integer Program
-    pub fn solve(&mut self) -> Result<Solution, String> {
-        self.solve_as(ProblemType::MixedInteger)
+    pub fn solve(&mut self, prob_type: ProblemType) -> Result<Solution, String> {
+        self.solve_as(prob_type)
     }
 }
 

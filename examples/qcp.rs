@@ -1,7 +1,7 @@
 extern crate cplex_dynamic;
 use cplex_dynamic::{
-    Constraint, ConstraintType, Env, ObjectiveType, Problem, Variable, VariableType, VariableValue,
-    WeightedVariable,
+    Constraint, ConstraintType, Env, ObjectiveType, Problem, ProblemType, Variable, VariableType,
+    VariableValue, WeightedVariable,
 };
 
 fn main() {
@@ -134,7 +134,7 @@ fn main() {
         .unwrap();
 
     // solve the problem
-    let sol = prob.solve().unwrap();
+    let sol = prob.solve(ProblemType::MixedInteger).unwrap();
 
     let t2 = std::time::Instant::now();
 
